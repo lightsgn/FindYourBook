@@ -230,6 +230,23 @@ class Repository:
         )
         self.db.commit()
 
+    def get_or_create_book(self, title: str) -> Book:
+        book = (
+            self.db.query(Book)
+            .filter(func.lower(Book.title) == func.lower(title))
+            .first()
+        )
+
+        if book:
+            return book
+
+        book = Book(title=title)
+        self.db.add(book)
+        self.db.commit()
+        self.db.refresh(book)
+        return book
+
+
     # =======================
     # COLLABORATIVE FILTERING SUPPORT
     # =======================

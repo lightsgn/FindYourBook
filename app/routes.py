@@ -57,3 +57,25 @@ def results():
             similar_by_tags=similar_by_tags,
             similar_by_users=similar_by_users
         )
+
+@main_bp.route("/add-book", methods=["POST"])
+def add_book():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect("/login")
+
+    title = request.form["title"].strip()
+    rating = int(request.form["rating"])
+
+    service = MatchingService()
+
+    # 🔑 get or create
+    book = service.repo.get_or_create_book(title)
+
+    service.repo.add_or_update_user_book(
+        user_id=user_id,
+        book_id=book.id,
+        rating=rating
+    )
+
+    return redirect("/dashboard")
