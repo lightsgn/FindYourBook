@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 from sqlalchemy.engine.row import Row
 from sqlalchemy.orm import Session
@@ -178,6 +178,20 @@ class Repository:
             .all()
         )
 
+    def get_book_titles_and_ratings_for_user(self, user_id: int) -> List[Tuple[str, int]]:
+        rows = (
+            self.db.query(
+                Book.title,
+                UserBook.rating
+            )
+            .join(UserBook, Book.id == UserBook.book_id)
+            .filter(UserBook.user_id == user_id)
+            .order_by(Book.title)
+            .all()
+        )
+
+        return rows  # [(title, rating)]
+
     def add_or_update_user_book(
         self,
         user_id: int,
@@ -219,6 +233,32 @@ class Repository:
     # =======================
     # COLLABORATIVE FILTERING SUPPORT
     # =======================
+    def get_books_liked_by_users_with_counts(
+            self,
+            user_ids: list[int],
+            min_rating: int = 4,
+            exclude_book_ids: list[int] = []
+    ) -> list[tuple[int, int]]:
+        if not user_ids:
+            return []
+
+        query = (
+            self.db.query(
+                UserBook.book_id,
+                func.count().label("cnt")
+            )
+            .filter(
+                UserBook.user_id.in_(user_ids),
+                UserBook.rating >= min_rating
+            )
+            .group_by(UserBook.book_id)
+            .order_by(func.count().desc())
+        )
+
+        if exclude_book_ids:
+            query = query.filter(~UserBook.book_id.in_(exclude_book_ids))
+
+        return query.all()  # [(book_id, count)]
 
     def get_users_who_liked_books(
         self,

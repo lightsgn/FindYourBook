@@ -1,3 +1,4 @@
+from flask import session
 from sqlalchemy.engine.row import Row
 
 from app.db.session import SessionLocal
@@ -40,5 +41,43 @@ class MatchingService:
         book_ids = [book.id for book in books]
         return self.repo.get_tag_ids_and_counts_for_books(book_ids)
 
-    def get_users_books(self, user_id: int):
-        return self.repo.get_books_for_user(user_id)
+    def get_users_books(self, user_id: int) -> list[str]:
+        titles_and_ratings = self.repo.get_book_titles_and_ratings_for_user(user_id)
+
+        if not titles_and_ratings:
+            return []
+
+        return titles_and_ratings
+
+    def recommend_by_collaboration(self, entered_books: list[Book]) -> list[Book]:
+        entered_book_ids = [b.id for b in entered_books]
+
+        # 1️⃣ Find similar users
+        similar_user_ids = self.repo.get_users_who_liked_books(
+            entered_book_ids,
+            min_rating=4
+        )
+
+        if not similar_user_ids:
+            return []
+
+        # 2️⃣ Exclude books user already knows
+        current_user_id = session.get("user_id")
+        user_books = self.repo.get_books_for_user(current_user_id)
+        excluded_ids = {ub.book_id for ub in user_books}
+        excluded_ids.update(entered_book_ids)
+
+        # 3️⃣ Get ranked book IDs
+        book_ids_and_counts = self.repo.get_books_liked_by_users_with_counts(
+            similar_user_ids,
+            min_rating=4,
+            exclude_book_ids=list(excluded_ids)
+        )
+
+        # 4️⃣ Convert to Book objects
+        books = [
+            self.repo.get_book_by_id(book_id).title
+            for book_id, _ in book_ids_and_counts
+        ]
+
+        return books

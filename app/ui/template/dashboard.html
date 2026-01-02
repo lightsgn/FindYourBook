@@ -79,10 +79,10 @@
     <div class="container">
         <h2>Your Books</h2>
         <ul>
-            {% for ub in user_books %}
+            {% for br in books_ratings %}
                 <li>
-                    Book ID: {{ ub.book_id }} |
-                    Rating: {{ ub.rating }}
+                    {{ br.title }} |
+                    {{ br.rating }} *
                 </li>
             {% else %}
                 <li>No books yet</li>

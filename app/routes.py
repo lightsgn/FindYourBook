@@ -21,18 +21,17 @@ def dashboard():
     if not require_login():
         return redirect(url_for("auth.login"))
 
-    print(require_login())
     user_id = session["user_id"]
 
     service = MatchingService()
 
-    user_books = service.get_users_books(user_id)
+    users_books_and_ratings = service.get_users_books(user_id)
 
     service.db.close()
 
     return render_template(
         "dashboard.html",
-        user_books=user_books
+        books_ratings=users_books_and_ratings
     )
 
 
@@ -51,7 +50,7 @@ def results():
 
         similar_by_tags = service.recommend_by_tags(entered_books)
 
-        similar_by_users = []
+        similar_by_users = service.recommend_by_collaboration(entered_books)
 
         return render_template(
             'results.html',
