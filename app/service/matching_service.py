@@ -53,35 +53,28 @@ class MatchingService:
 
         return books_and_ratings
 
-    def recommend_by_collaboration(self, entered_books: list[Book]) -> list[Book]:
+    def recommend_by_users(self, current_user_id, entered_books: list[Book]) -> list[Book]:
         entered_book_ids = [b.id for b in entered_books]
 
-        # 1️⃣ Find similar users
-        similar_user_ids = self.repo.get_users_who_liked_books(
-            entered_book_ids,
-            min_rating=4
-        )
+        # Find similar users
+        similar_user_ids = self.repo.get_users_who_liked_books(entered_book_ids, min_rating=4)
 
-        if not similar_user_ids:
-            return []
-
-        # 2️⃣ Exclude books user already knows
-        current_user_id = session.get("user_id")
+        #Exclude books user already knows
         user_books = self.repo.get_books_for_user(current_user_id)
         excluded_ids = {ub.book_id for ub in user_books}
         excluded_ids.update(entered_book_ids)
 
-        # 3️⃣ Get ranked book IDs
+        #Get ranked book IDs
         book_ids_and_counts = self.repo.get_books_liked_by_users_with_counts(
             similar_user_ids,
             min_rating=4,
-            exclude_book_ids=list(excluded_ids)
         )
+        filtered_books_counts = [bc for bc in book_ids_and_counts if bc[0] not in excluded_ids]
 
-        # 4️⃣ Convert to Book objects
+        # Convert to Book objects
         books = [
-            self.repo.get_book_by_id(book_id).title
-            for book_id, _ in book_ids_and_counts
+            self.repo.get_book_by_id(book_id).title+" ("+str(count)+")"
+            for book_id, count in filtered_books_counts
         ]
 
         return books

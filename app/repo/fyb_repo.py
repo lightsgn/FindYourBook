@@ -248,20 +248,12 @@ class Repository:
     # =======================
     # COLLABORATIVE FILTERING SUPPORT
     # =======================
-    def get_books_liked_by_users_with_counts(
-            self,
-            user_ids: list[int],
-            min_rating: int = 4,
-            exclude_book_ids: list[int] = []
-    ) -> list[tuple[int, int]]:
+    def get_books_liked_by_users_with_counts(self, user_ids: list[int], min_rating: int = 4) -> list[tuple[int, int]]:
         if not user_ids:
             return []
 
         query = (
-            self.db.query(
-                UserBook.book_id,
-                func.count().label("cnt")
-            )
+            self.db.query(UserBook.book_id, func.count().label("cnt"))
             .filter(
                 UserBook.user_id.in_(user_ids),
                 UserBook.rating >= min_rating
@@ -269,9 +261,6 @@ class Repository:
             .group_by(UserBook.book_id)
             .order_by(func.count().desc())
         )
-
-        if exclude_book_ids:
-            query = query.filter(~UserBook.book_id.in_(exclude_book_ids))
 
         return query.all()  # [(book_id, count)]
 

@@ -48,9 +48,9 @@ def results():
             if books := service.get_possible_books(title):
                 entered_books.append(books[0])
 
+        user_id = session["user_id"]
         similar_by_tags = service.recommend_by_tags(entered_books)
-
-        similar_by_users = service.recommend_by_collaboration(entered_books)
+        similar_by_users = service.recommend_by_users(user_id, entered_books)
 
         return render_template(
             'results.html',
