@@ -19,5 +19,5 @@ start "" "http://127.0.0.1:5000"
 
 :: Başlat
 echo FindABook Is Starting...
-python main.py
+python -m app.main
 pause
