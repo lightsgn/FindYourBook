@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Results - Find A Book</title>
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    background-image: url("{{ url_for('static', filename='background/kitap4.jpeg') }}");
+    background-size: cover;
+    background-position: center;
+    font-family: monospace;
+}
+
+.wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+h1 {
+    position: absolute;
+    left: 25%;
+    top: 10%;
+    color: black;
+    font-size: 25px;
+    letter-spacing: 2px;
+}
+
+.container {
+    position: absolute;
+    top: 18%;
+    left: 15%;
+    width: 75%;
+    height: 70%;
+    display: flex;
+    gap: 40px;
+}
+
+.column {
+    flex: 1;
+    border: none solid #333;
+    padding: 50px;
+    box-sizing: border-box;
+}
+
+.column h2 {
+    margin-top: 0;
+    border-bottom: none solid #333;
+    padding-bottom: 10px;
+    color: #000;
+}
+
+ul {
+    padding-left: 20px;
+    color: #000;
+}
+
+li {
+    margin-bottom: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+    <h1>What We Recommend<br>For You</h1>
+
+    <div class="container">
+        <div class="column">
+            <h2>Books With Similar Tags</h2>
+            <ul>
+                {% for book in similar_by_tags %}
+                    <li>{{ book }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="column">
+            <h2>Other People Also Liked These</h2>
+            <ul>
+                {% for book in similar_by_users %}
+                    <li>{{ book }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

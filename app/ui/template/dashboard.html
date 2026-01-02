@@ -1,24 +1,144 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find A Book</title>
+    <style>
+        body {
+            font-family: monospace;
+            background-image: url("{{ url_for('static', filename='background/kitap3.png') }}");
+            background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			color: white;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 80vh;
+			margin: 0;
+        }
+        .container {
+            background: rgba(139,69,19);
+            border-radius: 12px;
+            border: none;
+			padding: 50px;
+			box-shadow: 0 20px 40px rgba(0,0,0,1);
+        }
+        input {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px auto;
+            width: 300px;
+            display: block;
+        }
+        .extra-slot {
+            display: none;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        button {
+            background-color: black;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: monospace;
+            margin: 5px;
+        }
+        #add-btn {
+            background-color: white;
+            color: black;
+            border: none solid black;
+        }
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border: 2px solid black;
+            padding: 50px;
+            z-index: 100;
+        }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 50;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h2>Your Books</h2>
+        <ul>
+            {% for ub in user_books %}
+                <li>
+                    Book ID: {{ ub.book_id }} |
+                    Rating: {{ ub.rating }}
+                </li>
+            {% else %}
+                <li>No books yet</li>
+            {% endfor %}
+        </ul>
 
-<h2>Your Books</h2>
+        <a href="/logout">Logout</a>
+    </div>
+    <div class="container">
+        <h1>Find A Book</h1>
+        <form id="searchForm" action="/results" method="POST">
+            <div id="input-container">
+                <input type="text" name="book1" placeholder="Book Title 1" required>
+                <input type="text" name="book2" placeholder="Book Title 2" required>
+                <input type="text" name="book3" class="extra-slot" placeholder="Book Title 3">
+                <input type="text" name="book4" class="extra-slot" placeholder="Book Title 4">
+                <input type="text" name="book5" class="extra-slot" placeholder="Book Title 5">
+            </div>
 
-<ul>
-    {% for ub in user_books %}
-        <li>
-            Book ID: {{ ub.book_id }} |
-            Rating: {{ ub.rating }}
-        </li>
-    {% else %}
-        <li>No books yet</li>
-    {% endfor %}
-</ul>
+            <div class="controls">
+                <button type="button" id="add-btn">+ Add More</button>
+                <button type="submit">ENTER</button>
+            </div>
+        </form>
+    </div>
 
-<a href="/logout">Logout</a>
+    <div id="overlay"></div>
+    <div id="popup">
+        <h2>We're searching...</h2>
+    </div>
 
+    <script>
+        let currentSlots = 2;
+        const maxSlots = 5;
+        const addBtn = document.getElementById('add-btn');
+        const extraInputs = document.querySelectorAll('.extra-slot');
+
+        addBtn.addEventListener('click', () => {
+            if (currentSlots < maxSlots) {
+                extraInputs[currentSlots - 2].style.display = 'block';
+                currentSlots++;
+            }
+            if (currentSlots === maxSlots) {
+                addBtn.style.display = 'none';
+            }
+        });
+
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('popup').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+
+            setTimeout(() => {
+                this.submit();
+            }, 6000);
+        });
+    </script>
 </body>
 </html>

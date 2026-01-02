@@ -1,11 +1,14 @@
+from typing import Optional, List
+
+from sqlalchemy.engine.row import Row
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import select, func, case, distinct
 
 from app.model.user import User
 from app.model.book import Book
 from app.model.tag import Tag
-from app.model.user_book import UserBook
 from app.model.book_tag import BookTag
+from app.model.user_book import UserBook
 
 
 class Repository:
@@ -16,14 +19,22 @@ class Repository:
     # USERS
     # =======================
 
-    def get_user_by_id(self, user_id: int) -> User | None:
-        return self.db.query(User).filter(User.id == user_id).first()
+    def get_user_by_id(self, user_id: int) -> Optional[User]:
+        return self.db.get(User, user_id)
 
-    def get_user_by_name(self, name: str) -> User | None:
-        return self.db.query(User).filter(User.name == name).first()
+    def get_user_by_name(self, name: str) -> Optional[User]:
+        return (
+            self.db.query(User)
+            .filter(User.name == name)
+            .first()
+        )
 
     def create_user(self, name: str, password_hash: str, email: str) -> User:
-        user = User(name=name, password_hash=password_hash, email=email)
+        user = User(
+            name=name,
+            password_hash=password_hash,
+            email=email
+        )
         self.db.add(user)
         self.db.commit()
         self.db.refresh(user)
@@ -33,10 +44,14 @@ class Repository:
     # BOOKS
     # =======================
 
-    def get_book_by_id(self, book_id: int) -> Book | None:
-        return self.db.query(Book).filter(Book.id == book_id).first()
+    def get_book_by_id(self, book_id: int) -> Optional[Book]:
+        return self.db.get(Book, book_id)
 
-    def search_books_by_title(self, query: str, limit: int = 10) -> list[Book]:
+    def search_books_by_title(
+        self,
+        query: str,
+        limit: int = 10
+    ) -> List[Book]:
         return (
             self.db.query(Book)
             .filter(Book.title.ilike(f"%{query}%"))
@@ -44,18 +59,29 @@ class Repository:
             .all()
         )
 
-    def get_books_by_ids(self, book_ids: list[int]) -> list[Book]:
-        return self.db.query(Book).filter(Book.id.in_(book_ids)).all()
+    def get_books_by_ids(self, book_ids: list[int]) -> List[Book]:
+        if not book_ids:
+            return []
+
+        return (
+            self.db.query(Book)
+            .filter(Book.id.in_(book_ids))
+            .all()
+        )
 
     # =======================
     # TAGS
     # =======================
 
-    def get_tag_by_id(self, tag_id: int) -> Tag | None:
-        return self.db.query(Tag).filter(Tag.id == tag_id).first()
+    def get_tag_by_id(self, tag_id: int) -> Optional[Tag]:
+        return self.db.get(Tag, tag_id)
 
-    def get_tag_by_name(self, name: str) -> Tag | None:
-        return self.db.query(Tag).filter(Tag.name == name).first()
+    def get_tag_by_name(self, name: str) -> Optional[Tag]:
+        return (
+            self.db.query(Tag)
+            .filter(Tag.name == name)
+            .first()
+        )
 
     def create_tag(self, name: str) -> Tag:
         tag = Tag(name=name)
@@ -69,31 +95,81 @@ class Repository:
     # =======================
 
     def add_tag_to_book(self, book_id: int, tag_id: int) -> None:
-        bt = BookTag(book_id=book_id, tag_id=tag_id)
-        self.db.add(bt)
+        self.db.merge(
+            BookTag(book_id=book_id, tag_id=tag_id)
+        )
         self.db.commit()
 
     def get_tag_ids_for_books(self, book_ids: list[int]) -> list[int]:
+        if not book_ids:
+            return []
+
         rows = (
-            self.db.query(BookTag.tag_id)
+            self.db.query(distinct(BookTag.tag_id))
             .filter(BookTag.book_id.in_(book_ids))
             .all()
         )
         return [row[0] for row in rows]
 
-    def get_book_ids_for_tags(self, tag_ids: list[int]) -> list[int]:
+    def get_tag_ids_and_counts_for_books(
+        self,
+        book_ids: list[int]
+    ) -> dict[int, int]:
+        if not book_ids:
+            return {}
+
         rows = (
-            self.db.query(BookTag.book_id)
+            self.db.query(
+                BookTag.tag_id,
+                func.count().label("cnt")
+            )
+            .filter(BookTag.book_id.in_(book_ids))
+            .group_by(BookTag.tag_id)
+            .order_by(func.count().desc())
+            .all()
+        )
+
+        return {tag_id: cnt for tag_id, cnt in rows}
+
+    def get_book_ids_for_tags(self, tag_ids: list[int]) -> list[int]:
+        if not tag_ids:
+            return []
+
+        rows = (
+            self.db.query(distinct(BookTag.book_id))
             .filter(BookTag.tag_id.in_(tag_ids))
             .all()
         )
-        return [row[0] for row in rows]
+        return rows
+
+    def get_books_for_weighted_tags(self, tag_counts: dict[int, int]) -> list[Row]:
+        if not tag_counts:
+            return []
+
+        weight_case = case(
+            tag_counts,
+            value=BookTag.tag_id,
+            else_=0
+        )
+
+        rows = (
+            self.db.query(
+                BookTag.book_id,
+                func.sum(weight_case).label("score")
+            )
+            .filter(BookTag.tag_id.in_(tag_counts.keys()))
+            .group_by(BookTag.book_id)
+            .order_by(func.sum(weight_case).desc())
+            .all()
+        )
+
+        return rows  # (book_id, score)
 
     # =======================
     # USER <-> BOOK (RATINGS)
     # =======================
 
-    def get_books_for_user(self, user_id: int) -> list[UserBook]:
+    def get_books_for_user(self, user_id: int) -> List[UserBook]:
         return (
             self.db.query(UserBook)
             .filter(UserBook.user_id == user_id)
@@ -147,13 +223,15 @@ class Repository:
         book_ids: list[int],
         min_rating: int = 4
     ) -> list[int]:
+        if not book_ids:
+            return []
+
         rows = (
-            self.db.query(UserBook.user_id)
+            self.db.query(distinct(UserBook.user_id))
             .filter(
                 UserBook.book_id.in_(book_ids),
                 UserBook.rating >= min_rating
             )
-            .distinct()
             .all()
         )
         return [row[0] for row in rows]
@@ -163,13 +241,15 @@ class Repository:
         user_ids: list[int],
         min_rating: int = 4
     ) -> list[int]:
+        if not user_ids:
+            return []
+
         rows = (
-            self.db.query(UserBook.book_id)
+            self.db.query(distinct(UserBook.book_id))
             .filter(
                 UserBook.user_id.in_(user_ids),
                 UserBook.rating >= min_rating
             )
-            .distinct()
             .all()
         )
         return [row[0] for row in rows]

@@ -10,22 +10,22 @@ auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+    if request.method != "POST":
+        return render_template("login.html")
 
-        service = SecurityService()
+    username = request.form["username"]
+    password = request.form["password"]
 
-        user = service.get_user_by_name(username)
-        if not user or not check_password_hash(user.password_hash, password):
-            flash("Invalid username or password")
-            return redirect(url_for("auth.login"))
+    service = SecurityService()
+    user = service.get_user_by_name(username)
+    if not user or not check_password_hash(user.password_hash, password):
+        flash("Invalid username or password")
+        return redirect(url_for("auth.login"))
 
-        session["user_id"] = user.id
+    session["user_id"] = user.id
 
-        return redirect(url_for("main.dashboard"))
+    return redirect(url_for("main.dashboard"))
 
-    return render_template("login.html")
 
 
 @auth_bp.route("/signup", methods=["GET", "POST"])
