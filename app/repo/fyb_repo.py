@@ -142,7 +142,7 @@ class Repository:
         )
         return rows
 
-    def get_books_for_weighted_tags( self, tag_counts: dict[int, int], exclude_book_ids: list[int]) -> list[Row]:
+    def get_books_for_weighted_tags( self, tag_counts: dict[int, int]) -> list[Row]:
         if not tag_counts:
             return []
 
@@ -161,9 +161,6 @@ class Repository:
             .group_by(BookTag.book_id)
             .order_by(func.sum(weight_case).desc())
         )
-
-        if exclude_book_ids:
-            query = query.filter(~BookTag.book_id.in_(exclude_book_ids))
 
         return query.all()
 

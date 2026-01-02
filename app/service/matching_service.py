@@ -31,12 +31,13 @@ class MatchingService:
         tag_counts = self._collect_tags(entered_books)
         entered_ids = [b.id for b in entered_books]
 
-        book_ids_and_scores = self.repo.get_books_for_weighted_tags(tag_counts, entered_ids)
-        book_ids_and_scores.sort(key=lambda t: t[1], reverse=True)
+        book_ids_and_scores = self.repo.get_books_for_weighted_tags(tag_counts)
+        filtered_books_scores = [bs for bs in book_ids_and_scores if bs[0] not in entered_ids]
+        filtered_books_scores.sort(key=lambda t: t[1], reverse=True)
 
         return [
             self.repo.get_book_by_id(book_id).title
-            for book_id, _ in book_ids_and_scores
+            for book_id, _ in filtered_books_scores
         ]
 
     def _collect_tags(self, books: list[Book]) -> dict[int, int]:

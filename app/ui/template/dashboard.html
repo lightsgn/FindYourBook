@@ -5,81 +5,148 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find A Book</title>
     <style>
-        body {
-            font-family: monospace;
-            background-image: url("{{ url_for('static', filename='background/kitap3.png') }}");
-            background-size: cover;
-			background-position: center;
-			background-repeat: no-repeat;
-			color: white;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			height: 80vh;
-			margin: 0;
-        }
-        .container {
-            background: rgba(139,69,19);
-            border-radius: 12px;
-            border: none;
-			padding: 50px;
-			box-shadow: 0 20px 40px rgba(0,0,0,1);
-        }
-        input {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin: 10px auto;
-            width: 300px;
-            display: block;
-        }
-        .extra-slot {
-            display: none;
-        }
-        .controls {
-            margin-top: 20px;
-        }
-        button {
-            background-color: black;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-family: monospace;
-            margin: 5px;
-        }
-        #add-btn {
-            background-color: white;
-            color: black;
-            border: none solid black;
-        }
-        #popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            border: 2px solid black;
-            padding: 50px;
-            z-index: 100;
-        }
-        #overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            z-index: 50;
-        }
-        .no-bullets {
+    body {
+        margin: 0;
+        min-height: 100vh;
+        background-image: url("{{ url_for('static', filename='background/kitap3.png') }}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        color: #3e2f23;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .dashboard {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        padding: 2rem;
+        width: min(1200px, 95%);
+    }
+
+    .container {
+        background: rgba(255, 250, 245, 0.95);
+        border-radius: 14px;
+        padding: 1.8rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+        display: flex;
+        flex-direction: column;
+    }
+
+    h1, h2, h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        color: #3e2f23;
+    }
+
+    ul.no-bullets {
         list-style: none;
         padding-left: 0;
-        }
-    </style>
+        margin: 0;
+        flex-grow: 1;
+    }
+
+    ul.no-bullets li {
+        padding: 0.4rem 0;
+        border-bottom: 1px solid #e4d6c8;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    ul.no-bullets li:last-child {
+        border-bottom: none;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 0.6rem;
+        margin-bottom: 0.8rem;
+        border-radius: 6px;
+        border: 1px solid #cdbfb3;
+        background: #fdfbf9;
+        font-size: 0.9rem;
+    }
+
+    input:focus, select:focus {
+        outline: none;
+        border-color: #8b6f52;
+        background: #fff;
+    }
+
+    button {
+        padding: 0.6rem 1rem;
+        border-radius: 6px;
+        border: none;
+        background: #8b6f52;
+        color: white;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background 0.2s ease;
+    }
+
+    button:hover {
+        background: #745a41;
+    }
+
+    #add-btn {
+        background: #ede3d9;
+        color: #3e2f23;
+    }
+
+    #add-btn:hover {
+        background: #dcccbf;
+    }
+
+    a {
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        color: #8b6f52;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    .controls {
+        margin-top: auto;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .extra-slot {
+        display: none;
+    }
+
+    #popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fffaf5;
+        border-radius: 12px;
+        padding: 2rem 3rem;
+        z-index: 100;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    #overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.85);
+        z-index: 50;
+    }
+</style>
 </head>
 <body>
+<div class="dashboard">
     <div class="container">
         <h2>Your Books</h2>
         <ul class="no-bullets">
@@ -115,7 +182,7 @@
         <a href="/logout">Logout</a>
     </div>
     <div class="container">
-        <h3>Add a book</h3>
+        <h2>Add a book</h2>
 
 <form method="post" action="/add-book">
   <input
@@ -136,7 +203,7 @@
 </form>
     </div>
     <div class="container">
-        <h1>Find A Book</h1>
+        <h2>Discover Books</h2>
         <form id="searchForm" action="/results" method="POST">
             <div id="input-container">
                 <input type="text" name="book1" placeholder="Book Title 1" required>
@@ -157,6 +224,7 @@
     <div id="popup">
         <h2>We're searching...</h2>
     </div>
+</div>
 
     <script>
         let currentSlots = 2;

@@ -11,7 +11,7 @@ body {
     background-image: url("{{ url_for('static', filename='background/kitap4.jpeg') }}");
     background-size: cover;
     background-position: center;
-    font-family: monospace;
+    font-family: "Georgia", "Times New Roman", serif;
 }
 
 .wrapper {
@@ -20,46 +20,74 @@ body {
     position: relative;
 }
 
+/* Main title across the book */
 h1 {
     position: absolute;
-    left: 25%;
-    top: 10%;
-    color: black;
-    font-size: 25px;
+    left: 18%;
+    top: 0%;
+    font-size: 26px;
     letter-spacing: 2px;
+    color: #2b1d14;
+    font-weight: bold;
 }
 
+/* Two-page layout */
 .container {
     position: absolute;
-    top: 18%;
-    left: 15%;
-    width: 75%;
-    height: 70%;
+    top: 20%;
+    left: 16%;
+    width: 76%;
+    height: 65%;
     display: flex;
-    gap: 40px;
+    gap: 8%;
 }
 
+/* Individual page columns */
 .column {
     flex: 1;
-    border: none solid #333;
-    padding: 50px;
+    padding: 40px 60px;
     box-sizing: border-box;
 }
 
+/* Page headings */
 .column h2 {
     margin-top: 0;
-    border-bottom: none solid #333;
-    padding-bottom: 10px;
-    color: #000;
+    margin-bottom: 24px;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: #2b1d14;
+    font-weight: bold;
 }
 
+/* Book-style lists */
 ul {
-    padding-left: 20px;
-    color: #000;
+    list-style-type: disc;
+    padding-left: 40px;
+    margin: 0;
+    color: #2b1d14;
 }
 
 li {
-    margin-bottom: 12px;
+    margin-bott
+}
+.back-button {
+    position: absolute;
+    top: 6%;
+    left: 8%;
+    text-decoration: none;
+    font-size: 16px;
+    font-family: "Georgia", "Times New Roman", serif;
+    color: #2b1d14;
+    padding: 6px 14px;
+    border: 1px solid rgba(43, 29, 20, 0.4);
+    border-radius: 4px;
+    background: rgba(255, 248, 235, 0.6);
+    transition: all 0.2s ease;
+}
+
+.back-button:hover {
+    background: rgba(255, 248, 235, 0.9);
+    transform: translateX(-2px);
 }
 </style>
 </head>
@@ -68,10 +96,12 @@ li {
 
 <div class="wrapper">
 
-    <h1>What We Recommend<br>For You</h1>
+
 
     <div class="container">
         <div class="column">
+            <h1>What We Recommend &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp For You</h1>
+            <br><br>
             <h2>Books With Similar Tags</h2>
             <ul>
                 {% for book in similar_by_tags %}
@@ -81,6 +111,7 @@ li {
         </div>
 
         <div class="column">
+            <br><br>
             <h2>Other People Also Liked These</h2>
             <ul>
                 {% for book in similar_by_users %}
@@ -89,6 +120,7 @@ li {
             </ul>
         </div>
     </div>
+    <a href="{{ url_for('main.dashboard') }}" class="back-button">← Back</a>
 
 </div>
 
