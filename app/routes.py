@@ -76,7 +76,6 @@ def results():
 
 @main_bp.route("/add-book", methods=["POST"])
 def add_book():
-    # Backend koruması: Misafirler buraya istek atarsa login'e at
     if session.get("is_guest"):
         return redirect(url_for("auth.login"))
 
@@ -85,7 +84,9 @@ def add_book():
         return redirect("/login")
 
     title = request.form["title"].strip()
-    rating = int(request.form["rating"])
+
+    # int yerine float
+    rating = float(request.form["rating"])
 
     service = MatchingService()
 
