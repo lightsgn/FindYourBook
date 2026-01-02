@@ -35,13 +35,13 @@ def seed_books():
     # Kategori listesi
     genres = [
         "Fantasy", "Science Fiction", "Horror", "Romance", "History",
-        "Mystery", "Thriller", "Biography", "Cooking", "Art", "Comics"
+        "Mystery", "Thriller", "Biography", "Cooking", "Art", "Comics" , "Fantasy Fiction"
     ]
 
     print("🌱 Your library is loading...")
 
     for genre in genres:
-        print(f"📚 '{genre}' kategorisi taranıyor...")
+        print(f"📚 The '{genre}' genre is loading...")
         books_data = fetch_books_from_google(genre, max_results=15)
 
         tag = repo.get_tag_by_name(genre)

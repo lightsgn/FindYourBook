@@ -22,6 +22,8 @@
             flex-direction: column;
             align-items: center;
             min-height: 100%;
+            /* Butonun body'ye göre konumlanması için gerekli olabilir */
+            position: relative;
         }
 
         .lists-wrapper {
@@ -67,36 +69,39 @@
             text-transform: uppercase;
             font-size: 2em;
             color: black;
-            /* Arka plan rengi kaldırıldı */
             background-color: transparent;
         }
 
-        /* Orijinal Buton Tasarımı Geri Geldi */
+        /* GÜNCELLENEN BUTON TASARIMI */
         .back-btn {
-            display: inline-block;
-            margin-top: 30px;
+            position: absolute; /* Sayfa akışından çıkarıp sabitle */
+            top: 20px;          /* Üstten 20px boşluk */
+            left: 20px;         /* Soldan 20px boşluk */
             background-color: black;
             color: #f3e5ab;
-            padding: 15px 30px;
+            padding: 10px 20px; /* Biraz daha kompakt olsun */
             text-decoration: none;
             font-weight: bold;
-            margin-bottom: 30px;
             border: none;
             border-radius: 25px;
             cursor: pointer;
+            z-index: 1000; /* Diğer öğelerin üzerinde dursun */
         }
 
         .back-btn:hover {
-            background-color: #333; /* Hafif hover efekti */
+            background-color: #333;
         }
     </style>
 </head>
 <body>
 
+<a href="/" class="back-btn">← SEARCH AGAIN</a>
+
 <div class="lists-wrapper">
 
     <div class="results-col">
-        <h2>Similar Vibes</h2> {% if similar_by_tags %}
+        <h2>Similar Vibes</h2>
+        {% if similar_by_tags %}
             {% for title in similar_by_tags %}
                 <div class="book-item">
                     <div class="book-info">
@@ -131,8 +136,6 @@
     </div>
 
 </div>
-
-<a href="/" class="back-btn">SEARCH AGAIN</a>
 
 </body>
 </html>
