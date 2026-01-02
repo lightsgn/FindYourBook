@@ -123,7 +123,7 @@
         display: none;
     }
 
-    #popup {
+    #popup, #guest-popup {
         display: none;
         position: fixed;
         top: 50%;
@@ -134,6 +134,7 @@
         padding: 2rem 3rem;
         z-index: 100;
         box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        text-align: center;
     }
 
     #overlay {
@@ -221,17 +222,38 @@
     </div>
 
     <div id="overlay"></div>
+
     <div id="popup">
         <h2>We're searching...</h2>
+    </div>
+
+    <div id="guest-popup">
+        <h3 style="margin-top:0; color:#8b6f52;">Login Required</h3>
+        <p style="margin-bottom: 1.5rem; color:#555;">
+            You need to be logged in to save books to your library.
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <button id="close-guest-popup"
+                    style="background: #e0e0e0; color: #333;">
+                Cancel
+            </button>
+
+            <a href="{{ url_for('auth.login') }}" style="text-decoration:none;">
+                <button type="button">Login Now</button>
+            </a>
+        </div>
     </div>
 </div>
 
     <script>
+        const isGuest = {{ 'true' if is_guest else 'false' }};
+
         let currentSlots = 2;
         const maxSlots = 5;
         const addBtn = document.getElementById('add-btn');
         const extraInputs = document.querySelectorAll('.extra-slot');
 
+        // Slot açma mantığı
         addBtn.addEventListener('click', () => {
             if (currentSlots < maxSlots) {
                 extraInputs[currentSlots - 2].style.display = 'block';
@@ -242,6 +264,7 @@
             }
         });
 
+        // Arama yaparken çıkan yükleme ekranı
         document.getElementById('searchForm').addEventListener('submit', function(e) {
             e.preventDefault();
             document.getElementById('popup').style.display = 'block';
@@ -251,6 +274,31 @@
                 this.submit();
             }, 6000);
         });
+
+        // Misafir Popup Mantığı
+        const addBookForm = document.querySelector('form[action="/add-book"]');
+        const overlay = document.getElementById('overlay');
+        const guestPopup = document.getElementById('guest-popup');
+        const closeGuestBtn = document.getElementById('close-guest-popup');
+
+        if (addBookForm) {
+            addBookForm.addEventListener('submit', function(e) {
+                if (isGuest) {
+                    e.preventDefault();
+                    // Alert yerine Popup ve Overlay aç
+                    overlay.style.display = 'block';
+                    guestPopup.style.display = 'block';
+                }
+            });
+        }
+
+        // Cancel butonuna basınca kapat
+        if (closeGuestBtn) {
+            closeGuestBtn.addEventListener('click', () => {
+                overlay.style.display = 'none';
+                guestPopup.style.display = 'none';
+            });
+        }
     </script>
 </body>
 </html>

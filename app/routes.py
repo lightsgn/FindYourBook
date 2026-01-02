@@ -7,8 +7,8 @@ main_bp = Blueprint("main", __name__)
 
 
 def require_login():
-    print("AAAAAAAAAAA", "user_id" in session)
-    return "user_id" in session
+    # Kullanıcı ID'si varsa YA DA misafir modu açıksa giriş başarılıdır
+    return "user_id" in session or session.get("is_guest")
 
 
 @main_bp.route("/")
@@ -21,45 +21,65 @@ def dashboard():
     if not require_login():
         return redirect(url_for("auth.login"))
 
-    user_id = session["user_id"]
+    # Misafir kontrolü
+    is_guest = session.get("is_guest", False)
+    users_books_and_ratings = []
 
-    service = MatchingService()
-
-    users_books_and_ratings = service.get_users_books(user_id)
-
-    service.db.close()
+    # Eğer misafir DEĞİLSE, kitaplarını veritabanından çek
+    if not is_guest:
+        user_id = session["user_id"]
+        service = MatchingService()
+        users_books_and_ratings = service.get_users_books(user_id)
+        service.db.close()
 
     return render_template(
         "dashboard.html",
-        books_ratings=users_books_and_ratings
+        books_ratings=users_books_and_ratings,
+        is_guest=is_guest  # HTML sayfasına misafir olup olmadığını söylüyoruz
     )
 
 
 @main_bp.route('/results', methods=['POST'])
 def results():
+    if not require_login():
+        return redirect(url_for("auth.login"))
 
-        service = MatchingService()
-        entered_books = []
-        for i in range(1, 6):
-            title = request.form.get(f"book{i}", "").strip()
-            if not title:
-                continue
+    service = MatchingService()
+    entered_books = []
+    for i in range(1, 6):
+        title = request.form.get(f"book{i}", "").strip()
+        if not title:
+            continue
 
-            if books := service.get_possible_books(title):
-                entered_books.append(books[0])
+        if books := service.get_possible_books(title):
+            entered_books.append(books[0])
 
-        user_id = session["user_id"]
-        similar_by_tags = service.recommend_by_tags(entered_books)
+    # Tag bazlı öneriler herkes için çalışır
+    similar_by_tags = service.recommend_by_tags(entered_books)
+
+    # Kullanıcı bazlı öneriler sadece giriş yapmış üyeler için çalışır
+    similar_by_users = []
+    user_id = session.get("user_id")
+
+    if user_id:
         similar_by_users = service.recommend_by_users(user_id, entered_books)
+    else:
+        # Misafirler için basit bir mesaj veya boş liste dönebiliriz
+        similar_by_users = ["Login to see what others liked!"]
 
-        return render_template(
-            'results.html',
-            similar_by_tags=similar_by_tags,
-            similar_by_users=similar_by_users
-        )
+    return render_template(
+        'results.html',
+        similar_by_tags=similar_by_tags,
+        similar_by_users=similar_by_users
+    )
+
 
 @main_bp.route("/add-book", methods=["POST"])
 def add_book():
+    # Backend koruması: Misafirler buraya istek atarsa login'e at
+    if session.get("is_guest"):
+        return redirect(url_for("auth.login"))
+
     user_id = session.get("user_id")
     if not user_id:
         return redirect("/login")
@@ -80,8 +100,12 @@ def add_book():
 
     return redirect("/dashboard")
 
+
 @main_bp.route("/delete-book", methods=["POST"])
 def delete_book():
+    if session.get("is_guest"):
+        return redirect(url_for("auth.login"))
+
     user_id = session.get("user_id")
     if not user_id:
         return redirect("/login")

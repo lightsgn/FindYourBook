@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List, Dict, Union, Tuple # Importlar düzeltildi
 
 from flask import session
 from sqlalchemy.engine.row import Row
@@ -15,7 +15,7 @@ def book_from_row(row: Row) -> Book:
     )
 
 
-def books_from_rows(rows: list[Row]) -> list[Book]:
+def books_from_rows(rows: List[Row]) -> List[Book]: # Düzeltildi
     return [book_from_row(row) for row in rows]
 
 
@@ -27,7 +27,7 @@ class MatchingService:
     def get_possible_books(self, title: str):
         return self.repo.search_books_by_title(title)
 
-    def recommend_by_tags(self, entered_books: list[Book]) -> list[str]:
+    def recommend_by_tags(self, entered_books: List[Book]) -> List[str]: # Düzeltildi
         tag_counts = self._collect_tags(entered_books)
         entered_ids = [b.id for b in entered_books]
 
@@ -40,20 +40,22 @@ class MatchingService:
             for book_id, _ in filtered_books_scores
         ]
 
-    def _collect_tags(self, books: list[Book]) -> dict[int, int]:
+    def _collect_tags(self, books: List[Book]) -> Dict[int, int]: # Düzeltildi
         book_ids = [book.id for book in books]
         return self.repo.get_tag_ids_and_counts_for_books(book_ids)
 
-    def get_users_books(self, user_id: int) -> list[Any] | list[tuple[Book, int]]:
+    # 3.8 için Union ve Tuple düzeltmesi yapıldı
+    def get_users_books(self, user_id: int) -> Union[List[Any], List[Tuple[Book, int]]]:
         titles_and_ratings = self.repo.get_book_titles_and_ratings_for_user(user_id)
-        books_and_ratings =[tuple((Book(id=row[0], title=row[1]), row[2])) for row in titles_and_ratings]
+        # SQLAlchemy Row'u işlemek için düzeltme
+        books_and_ratings = [tuple((Book(id=row[0], title=row[1]), row[2])) for row in titles_and_ratings]
 
         if not books_and_ratings:
             return []
 
         return books_and_ratings
 
-    def recommend_by_users(self, current_user_id, entered_books: list[Book]) -> list[Book]:
+    def recommend_by_users(self, current_user_id, entered_books: List[Book]) -> List[Book]: # Düzeltildi
         entered_book_ids = [b.id for b in entered_books]
 
         # Find similar users

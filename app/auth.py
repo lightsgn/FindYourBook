@@ -43,13 +43,17 @@ def signup():
         flash("Username already exists")
         return redirect(url_for("auth.signup"))
 
-    password_hash = generate_password_hash(password)
+    password_hash = generate_password_hash(password, method='pbkdf2:sha256')
     service.create_user(username, password_hash, email)
 
     flash("Account created. Please log in.")
     return redirect(url_for("auth.login"))
 
-
+@auth_bp.route("/guest-login")
+def guest_login():
+    session.clear()
+    session["is_guest"] = True
+    return redirect(url_for("main.dashboard"))
 
 @auth_bp.route("/logout")
 def logout():

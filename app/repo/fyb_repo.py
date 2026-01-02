@@ -1,4 +1,4 @@
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Dict  # Dict eklendi
 
 from sqlalchemy.engine.row import Row
 from sqlalchemy.orm import Session
@@ -59,7 +59,7 @@ class Repository:
             .all()
         )
 
-    def get_books_by_ids(self, book_ids: list[int]) -> List[Book]:
+    def get_books_by_ids(self, book_ids: List[int]) -> List[Book]: # Düzeltildi
         if not book_ids:
             return []
 
@@ -100,7 +100,7 @@ class Repository:
         )
         self.db.commit()
 
-    def get_tag_ids_for_books(self, book_ids: list[int]) -> list[int]:
+    def get_tag_ids_for_books(self, book_ids: List[int]) -> List[int]: # Düzeltildi
         if not book_ids:
             return []
 
@@ -113,8 +113,8 @@ class Repository:
 
     def get_tag_ids_and_counts_for_books(
         self,
-        book_ids: list[int]
-    ) -> dict[int, int]:
+        book_ids: List[int]
+    ) -> Dict[int, int]: # Düzeltildi
         if not book_ids:
             return {}
 
@@ -131,7 +131,7 @@ class Repository:
 
         return {tag_id: cnt for tag_id, cnt in rows}
 
-    def get_book_ids_for_tags(self, tag_ids: list[int]) -> list[int]:
+    def get_book_ids_for_tags(self, tag_ids: List[int]) -> List[int]: # Düzeltildi
         if not tag_ids:
             return []
 
@@ -142,7 +142,7 @@ class Repository:
         )
         return rows
 
-    def get_books_for_weighted_tags( self, tag_counts: dict[int, int]) -> list[Row]:
+    def get_books_for_weighted_tags( self, tag_counts: Dict[int, int]) -> List[Row]: # Düzeltildi
         if not tag_counts:
             return []
 
@@ -248,7 +248,7 @@ class Repository:
     # =======================
     # COLLABORATIVE FILTERING SUPPORT
     # =======================
-    def get_books_liked_by_users_with_counts(self, user_ids: list[int], min_rating: int = 4) -> list[tuple[int, int]]:
+    def get_books_liked_by_users_with_counts(self, user_ids: List[int], min_rating: int = 4) -> List[Tuple[int, int]]: # Düzeltildi
         if not user_ids:
             return []
 
@@ -266,9 +266,9 @@ class Repository:
 
     def get_users_who_liked_books(
         self,
-        book_ids: list[int],
+        book_ids: List[int], # Düzeltildi
         min_rating: int = 4
-    ) -> list[int]:
+    ) -> List[int]: # Düzeltildi
         if not book_ids:
             return []
 
@@ -284,9 +284,9 @@ class Repository:
 
     def get_books_liked_by_users(
         self,
-        user_ids: list[int],
+        user_ids: List[int], # Düzeltildi
         min_rating: int = 4
-    ) -> list[int]:
+    ) -> List[int]: # Düzeltildi
         if not user_ids:
             return []
 
