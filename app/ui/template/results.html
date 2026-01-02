@@ -1,128 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Results - Find A Book</title>
+    <meta charset="UTF-8">
+    <title>Results</title>
+    <style>
+        html {
+            height: 100%;
+        }
+        body {
+            font-family: monospace;
+            /* Arka plan resmi */
+            background-image: url("{{ url_for('static', filename='background/kitap4.jpeg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 20px;
+            color: black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100%;
+        }
 
-<style>
-body {
-    margin: 0;
-    height: 100vh;
-    background-image: url("{{ url_for('static', filename='background/kitap4.jpeg') }}");
-    background-size: cover;
-    background-position: center;
-    font-family: "Georgia", "Times New Roman", serif;
-}
+        .lists-wrapper {
+            display: flex;
+            gap: 50px;
+            justify-content: center;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 50px;
+        }
 
-.wrapper {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
+        .results-col {
+            flex: 1;
+            padding: 20px;
+            background: none;
+            border: none;
+        }
 
-/* Main title across the book */
-h1 {
-    position: absolute;
-    left: 18%;
-    top: 0%;
-    font-size: 26px;
-    letter-spacing: 2px;
-    color: #2b1d14;
-    font-weight: bold;
-}
+        .book-item {
+            border-bottom: 2px solid black;
+            padding: 15px 0;
+        }
 
-/* Two-page layout */
-.container {
-    position: absolute;
-    top: 20%;
-    left: 16%;
-    width: 76%;
-    height: 65%;
-    display: flex;
-    gap: 8%;
-}
+        .book-info h3 {
+            margin: 0 0 5px 0;
+            color: black;
+            font-size: 1.4em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
 
-/* Individual page columns */
-.column {
-    flex: 1;
-    padding: 40px 60px;
-    box-sizing: border-box;
-}
+        .book-info p {
+            font-weight: bold;
+            margin: 5px 0;
+            color: #333;
+        }
 
-/* Page headings */
-.column h2 {
-    margin-top: 0;
-    margin-bottom: 24px;
-    font-size: 20px;
-    letter-spacing: 1px;
-    color: #2b1d14;
-    font-weight: bold;
-}
+        h2 {
+            text-align: center;
+            border-bottom: 4px solid black;
+            padding-bottom: 10px;
+            margin-top: 0;
+            text-transform: uppercase;
+            font-size: 2em;
+            color: black;
+            /* Arka plan rengi kaldırıldı */
+            background-color: transparent;
+        }
 
-/* Book-style lists */
-ul {
-    list-style-type: disc;
-    padding-left: 40px;
-    margin: 0;
-    color: #2b1d14;
-}
+        /* Orijinal Buton Tasarımı Geri Geldi */
+        .back-btn {
+            display: inline-block;
+            margin-top: 30px;
+            background-color: black;
+            color: #f3e5ab;
+            padding: 15px 30px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+        }
 
-li {
-    margin-bott
-}
-.back-button {
-    position: absolute;
-    top: 6%;
-    left: 8%;
-    text-decoration: none;
-    font-size: 16px;
-    font-family: "Georgia", "Times New Roman", serif;
-    color: #2b1d14;
-    padding: 6px 14px;
-    border: 1px solid rgba(43, 29, 20, 0.4);
-    border-radius: 4px;
-    background: rgba(255, 248, 235, 0.6);
-    transition: all 0.2s ease;
-}
-
-.back-button:hover {
-    background: rgba(255, 248, 235, 0.9);
-    transform: translateX(-2px);
-}
-</style>
+        .back-btn:hover {
+            background-color: #333; /* Hafif hover efekti */
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="wrapper">
+<div class="lists-wrapper">
 
-
-
-    <div class="container">
-        <div class="column">
-            <h1>What We Recommend &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp For You</h1>
-            <br><br>
-            <h2>Books With Similar Tags</h2>
-            <ul>
-                {% for book in similar_by_tags %}
-                    <li>{{ book }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <div class="column">
-            <br><br>
-            <h2>Other People Also Liked These</h2>
-            <ul>
-                {% for book in similar_by_users %}
-                    <li>{{ book }}</li>
-                {% endfor %}
-            </ul>
-        </div>
+    <div class="results-col">
+        <h2>Similar Vibes</h2> {% if similar_by_tags %}
+            {% for title in similar_by_tags %}
+                <div class="book-item">
+                    <div class="book-info">
+                        <h3>{{ title }}</h3>
+                        <p>Recommended based on content</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="font-weight: bold; text-align:center; margin-top:20px;">
+                No matches found based on tags.
+            </p>
+        {% endif %}
     </div>
-    <a href="{{ url_for('main.dashboard') }}" class="back-button">← Back</a>
+
+    <div class="results-col">
+        <h2>Users Also Liked</h2>
+        {% if similar_by_users %}
+            {% for title in similar_by_users %}
+                <div class="book-item">
+                    <div class="book-info">
+                        <h3>{{ title }}</h3>
+                        <p>High match with other readers</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="font-weight: bold; text-align:center; margin-top:20px;">
+                No popular recommendations found.
+            </p>
+        {% endif %}
+    </div>
 
 </div>
+
+<a href="/" class="back-btn">SEARCH AGAIN</a>
 
 </body>
 </html>

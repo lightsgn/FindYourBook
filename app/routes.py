@@ -64,8 +64,7 @@ def results():
     if user_id:
         similar_by_users = service.recommend_by_users(user_id, entered_books)
     else:
-        # Misafirler için basit bir mesaj veya boş liste dönebiliriz
-        similar_by_users = ["Login to see what others liked!"]
+        similar_by_users = [ "For a personalised list please login first" ]
 
     return render_template(
         'results.html',
