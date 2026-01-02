@@ -1,3 +1,5 @@
+from typing import Any
+
 from flask import session
 from sqlalchemy.engine.row import Row
 
@@ -41,13 +43,14 @@ class MatchingService:
         book_ids = [book.id for book in books]
         return self.repo.get_tag_ids_and_counts_for_books(book_ids)
 
-    def get_users_books(self, user_id: int) -> list[str]:
+    def get_users_books(self, user_id: int) -> list[Any] | list[tuple[Book, int]]:
         titles_and_ratings = self.repo.get_book_titles_and_ratings_for_user(user_id)
+        books_and_ratings =[tuple((Book(id=row[0], title=row[1]), row[2])) for row in titles_and_ratings]
 
-        if not titles_and_ratings:
+        if not books_and_ratings:
             return []
 
-        return titles_and_ratings
+        return books_and_ratings
 
     def recommend_by_collaboration(self, entered_books: list[Book]) -> list[Book]:
         entered_book_ids = [b.id for b in entered_books]
@@ -81,3 +84,6 @@ class MatchingService:
         ]
 
         return books
+
+    def remove_book_from_user(self, user_id: int, book_id: int):
+        self.repo.delete_user_book(user_id, book_id)

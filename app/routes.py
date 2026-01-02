@@ -79,3 +79,16 @@ def add_book():
     )
 
     return redirect("/dashboard")
+
+@main_bp.route("/delete-book", methods=["POST"])
+def delete_book():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect("/login")
+
+    book_id = int(request.form["book_id"])
+
+    service = MatchingService()
+    service.repo.delete_user_book(user_id, book_id)
+
+    return redirect("/dashboard")

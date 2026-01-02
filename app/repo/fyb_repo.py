@@ -178,9 +178,10 @@ class Repository:
             .all()
         )
 
-    def get_book_titles_and_ratings_for_user(self, user_id: int) -> List[Tuple[str, int]]:
+    def get_book_titles_and_ratings_for_user(self, user_id: int) -> List[Tuple[int, str, int]]:
         rows = (
             self.db.query(
+                Book.id,
                 Book.title,
                 UserBook.rating
             )
@@ -190,7 +191,7 @@ class Repository:
             .all()
         )
 
-        return rows  # [(title, rating)]
+        return rows  # [(id, title, rating)]
 
     def add_or_update_user_book(
         self,
