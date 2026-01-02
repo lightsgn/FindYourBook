@@ -19,7 +19,7 @@ pip install -r requirements.txt
 ```sh
 cd FindYourBook
 source .venv/bin/activate
-mkdir .db
+mkdir database
 python -m app.db.init_db
-# FindYourBoook/.db/books.db oluşmuş olmalı
+# FindYourBoook/database/books.db oluşmuş olmalı
 ```

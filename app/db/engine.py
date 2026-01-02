@@ -1,12 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy import event
 
-DATABASE_URL = "sqlite:///.db/books.db"
 
 engine = create_engine(
-    DATABASE_URL,
-    echo=True,           # shows SQL (good for learning/debug)
-    future=True
+    url="sqlite:///database/books.db",  # .db yerine database yazdık
+    connect_args={"check_same_thread": False}
 )
 
 @event.listens_for(engine, "connect")
