@@ -25,4 +25,4 @@ python -m app.db.init_db
 ```
 
 
-Önemli not, mac kullanıcıları terminalde "chmod +x click_to_start_MAC.command" runlamayı unutmayın
+Önemli not, mac kullanıcıları terminalde önce "cd PycharmProjects/FindYourBook" sonra "chmod +x click_to_start_MAC.command" runlamayı unutmayın
