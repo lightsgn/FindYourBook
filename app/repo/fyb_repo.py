@@ -142,7 +142,7 @@ class Repository:
         )
         return rows
 
-    def get_books_for_weighted_tags(self, tag_counts: dict[int, int]) -> list[Row]:
+    def get_books_for_weighted_tags( self, tag_counts: dict[int, int], exclude_book_ids: list[int]) -> list[Row]:
         if not tag_counts:
             return []
 
@@ -152,7 +152,7 @@ class Repository:
             else_=0
         )
 
-        rows = (
+        query = (
             self.db.query(
                 BookTag.book_id,
                 func.sum(weight_case).label("score")
@@ -160,10 +160,12 @@ class Repository:
             .filter(BookTag.tag_id.in_(tag_counts.keys()))
             .group_by(BookTag.book_id)
             .order_by(func.sum(weight_case).desc())
-            .all()
         )
 
-        return rows  # (book_id, score)
+        if exclude_book_ids:
+            query = query.filter(~BookTag.book_id.in_(exclude_book_ids))
+
+        return query.all()
 
     # =======================
     # USER <-> BOOK (RATINGS)
