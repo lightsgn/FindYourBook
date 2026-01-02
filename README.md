@@ -23,3 +23,6 @@ mkdir database
 python -m app.db.init_db
 # FindYourBoook/database/books.db oluşmuş olmalı
 ```
+
+
+Önemli not, mac kullanıcıları terminalde "chmod +x click_to_start_MAC.command" runlamayı unutmayın
