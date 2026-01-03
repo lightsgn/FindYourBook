@@ -17,6 +17,29 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        position: relative;
+    }
+
+    .page-logo {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        width: 120px;
+        height: auto;
+        z-index: 1000;
+    }
+
+    .spinning-cat {
+        display: block;
+        margin: 15px auto 0 auto;
+        width: 100px;
+        height: auto;
+        animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 
     .dashboard {
@@ -147,6 +170,9 @@
 </style>
 </head>
 <body>
+
+<img src="{{ url_for('static', filename='logo_cat.jpeg') }}" alt="Logo" class="page-logo">
+
 <div class="dashboard">
     <div class="container">
         <h2>Your Books</h2>
@@ -225,6 +251,7 @@
 
     <div id="popup">
         <h2>We're searching...</h2>
+        <img src="{{ url_for('static', filename='loading_cat.jpeg') }}" alt="Loading..." class="spinning-cat">
     </div>
 
     <div id="guest-popup">
