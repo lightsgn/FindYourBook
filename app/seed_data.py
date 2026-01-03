@@ -66,20 +66,20 @@ def seed_books():
     db.close()
 
 
-# --- 2. KISIM: Sahte Kullanıcı ve Puan Oluşturma ---
+# kullanıcı ve puan atma
 def seed_users_and_ratings():
     db = SessionLocal()
     repo = Repository(db)
 
     print("👤 Users are loading...")
 
-    # 1. Mevcut tüm etiketleri ve kitapları al
+    # Mevcut tüm genreleri kopyalama
     tags = db.query(Tag).all()
     if not tags:
         print("⚠️ Load the books first! ")
         return
 
-    # 2. 30 tane sahte kullanıcı yarat
+    #30 tane sahte kullanıcı yap
     for i in range(1, 31):
         username = f"reader_{i}"
 
@@ -94,12 +94,10 @@ def seed_users_and_ratings():
             email=f"{username}@example.com"
         )
 
-        # Bu kullanıcıya rastgele bir "favori tür" seç
+        # Bu kullanıcıya rastgele bir "favori genre" seçtir
         favorite_tag = random.choice(tags)
 
         # O türdeki kitapları bul
-        # DÜZELTME BURADA: Veritabanı [(1,), (2,)] gibi demet döndürür.
-        # Biz bunu [1, 2] gibi düz bir listeye çeviriyoruz.
         raw_ids = repo.get_book_ids_for_tags([favorite_tag.id])
         book_ids_in_genre = [r[0] for r in raw_ids]
 
