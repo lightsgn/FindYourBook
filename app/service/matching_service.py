@@ -29,7 +29,7 @@ class MatchingService:
 
     def recommend_by_tags(self, entered_books: List[Book]) -> List[str]: # Düzeltildi
         tag_counts = self._collect_tags(entered_books)
-        entered_ids = [b.id for b in entered_books]
+        entered_ids = [b.id for b in entered_books] #
 
         book_ids_and_scores = self.repo.get_books_for_weighted_tags(tag_counts)
         filtered_books_scores = [bs for bs in book_ids_and_scores if bs[0] not in entered_ids]
@@ -44,10 +44,8 @@ class MatchingService:
         book_ids = [book.id for book in books]
         return self.repo.get_tag_ids_and_counts_for_books(book_ids)
 
-    # 3.8 için Union ve Tuple düzeltmesi yapıldı
     def get_users_books(self, user_id: int) -> Union[List[Any], List[Tuple[Book, int]]]:
         titles_and_ratings = self.repo.get_book_titles_and_ratings_for_user(user_id)
-        # SQLAlchemy Row'u işlemek için düzeltme
         books_and_ratings = [tuple((Book(id=row[0], title=row[1]), row[2])) for row in titles_and_ratings]
 
         if not books_and_ratings:
@@ -58,22 +56,19 @@ class MatchingService:
     def recommend_by_users(self, current_user_id, entered_books: List[Book]) -> List[Book]: # Düzeltildi
         entered_book_ids = [b.id for b in entered_books]
 
-        # Find similar users
         similar_user_ids = self.repo.get_users_who_liked_books(entered_book_ids, min_rating=4)
 
-        #Exclude books user already knows
+        #Kullanıcının zaten bildiği kitapları exclude et
         user_books = self.repo.get_books_for_user(current_user_id)
         excluded_ids = {ub.book_id for ub in user_books}
         excluded_ids.update(entered_book_ids)
 
-        #Get ranked book IDs
         book_ids_and_counts = self.repo.get_books_liked_by_users_with_counts(
             similar_user_ids,
             min_rating=4,
         )
         filtered_books_counts = [bc for bc in book_ids_and_counts if bc[0] not in excluded_ids]
 
-        # Convert to Book objects
         books = [
             self.repo.get_book_by_id(book_id).title+" ("+str(count)+")"
             for book_id, count in filtered_books_counts

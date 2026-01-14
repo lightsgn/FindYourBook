@@ -21,7 +21,7 @@ def dashboard():
     if not require_login():
         return redirect(url_for("auth.login"))
 
-    # Misafir kontrolü
+
     is_guest = session.get("is_guest", False)
     users_books_and_ratings = []
 
@@ -83,13 +83,8 @@ def add_book():
         return redirect("/login")
 
     title = request.form["title"].strip()
-
-    # int yerine float
     rating = float(request.form["rating"])
-
     service = MatchingService()
-
-    # 🔑 get or create
     book = service.repo.get_or_create_book(title)
 
     service.repo.add_or_update_user_book(

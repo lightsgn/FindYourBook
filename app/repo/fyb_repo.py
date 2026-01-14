@@ -15,9 +15,6 @@ class Repository:
     def __init__(self, db: Session):
         self.db = db
 
-    # =======================
-    # USERS
-    # =======================
 
     def get_user_by_id(self, user_id: int) -> Optional[User]:
         return self.db.get(User, user_id)
@@ -39,10 +36,6 @@ class Repository:
         self.db.commit()
         self.db.refresh(user)
         return user
-
-    # =======================
-    # BOOKS
-    # =======================
 
     def get_book_by_id(self, book_id: int) -> Optional[Book]:
         return self.db.get(Book, book_id)
@@ -69,10 +62,6 @@ class Repository:
             .all()
         )
 
-    # =======================
-    # TAGS
-    # =======================
-
     def get_tag_by_id(self, tag_id: int) -> Optional[Tag]:
         return self.db.get(Tag, tag_id)
 
@@ -89,10 +78,6 @@ class Repository:
         self.db.commit()
         self.db.refresh(tag)
         return tag
-
-    # =======================
-    # BOOK <-> TAG
-    # =======================
 
     def add_tag_to_book(self, book_id: int, tag_id: int) -> None:
         self.db.merge(
@@ -164,10 +149,6 @@ class Repository:
 
         return query.all()
 
-    # =======================
-    # USER <-> BOOK (RATINGS)
-    # =======================
-
     def get_books_for_user(self, user_id: int) -> List[UserBook]:
         return (
             self.db.query(UserBook)
@@ -188,7 +169,7 @@ class Repository:
             .all()
         )
 
-        return rows  # [(id, title, rating)]
+        return rows
 
     def add_or_update_user_book(
         self,
@@ -244,10 +225,6 @@ class Repository:
         self.db.refresh(book)
         return book
 
-
-    # =======================
-    # COLLABORATIVE FILTERING SUPPORT
-    # =======================
     def get_books_liked_by_users_with_counts(self, user_ids: List[int], min_rating: int = 4) -> List[Tuple[int, int]]: # Düzeltildi
         if not user_ids:
             return []
@@ -262,7 +239,7 @@ class Repository:
             .order_by(func.count().desc())
         )
 
-        return query.all()  # [(book_id, count)]
+        return query.all()
 
     def get_users_who_liked_books(
         self,

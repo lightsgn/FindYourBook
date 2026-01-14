@@ -1,7 +1,7 @@
 from app.db.engine import engine
 from app.model.base import Base
 
-# IMPORTANT: import models so they register with Base
+# Importlar kalsın, base'e registerlamaları için gerekli
 from app.model.user import User
 from app.model.book import Book
 from app.model.tag import Tag
